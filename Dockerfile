@@ -33,7 +33,7 @@ RUN make && make install
 
 # Nginx with LuaJIT
 WORKDIR /nginx-${VER_NGINX}
-RUN ./configure --prefix=${NGINX_ROOT} --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=/${NGINX_DEVEL_KIT} --add-module=/${LUA_NGINX_MODULE} \
+RUN ./configure --prefix=${NGINX_ROOT} --with-http_ssl_module --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=/${NGINX_DEVEL_KIT} --add-module=/${LUA_NGINX_MODULE} \
     && make -j2 && make install && ln -s ${NGINX_ROOT}/sbin/nginx /usr/local/sbin/nginx \
     && apt-get purge --auto-remove -y wget make gcc \
     && rm -rf /var/lib/apt/lists/*
