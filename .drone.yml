@@ -1,0 +1,7 @@
+publish:
+  docker:
+    repo: monitor/nginx
+    file: Dockerfile
+    when:
+      branch: master
+      event: [push, pull_request]
