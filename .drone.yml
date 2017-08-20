@@ -1,6 +1,7 @@
 publish:
   docker:
     repo: monitor/nginx
+    repo: geekthings/nginx
     file: Dockerfile
     when:
       branch: master
