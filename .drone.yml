@@ -1,6 +1,12 @@
 publish:
   docker:
     repo: monitor/nginx
+    file: Dockerfile
+    when:
+      branch: master
+      event: [push, pull_request]
+publish:
+  docker:
     repo: geekthings/nginx
     file: Dockerfile
     when:
