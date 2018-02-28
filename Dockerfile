@@ -35,7 +35,7 @@ RUN make && make install
 
 # Nginx with LuaJIT
 WORKDIR /nginx-${VER_NGINX}
-RUN ./configure --prefix=${NGINX_ROOT} --with-http_ssl_module --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=/${NGINX_DEVEL_KIT} --add-module=/${LUA_NGINX_MODULE}  --add-module=/${NGINX_HTDIGEST_AUTH}\
+RUN ./configure --prefix=${NGINX_ROOT} --with-http_ssl_module --with-http_stub_status_module --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=/${NGINX_DEVEL_KIT} --add-module=/${LUA_NGINX_MODULE}  --add-module=/${NGINX_HTDIGEST_AUTH}\
     && make -j2 && make install \
     && ln -s ${NGINX_ROOT}/sbin/nginx /usr/local/sbin/nginx && ln -s ${NGINX_ROOT}/conf /etc/nginx \
     && apt-get purge --auto-remove -y wget make gcc git \

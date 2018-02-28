@@ -237,8 +237,7 @@ end
 --   Either an error string, or nil of no errors were found.
 local function check_metric_and_label_names(metric_name, label_names)
   if not metric_name:match("^[a-zA-Z_:][a-zA-Z0-9_:]*$") then
-    return "Metric name '" .. metric_name ..
-           "' contains invalid characters"
+    return "Metric name '" .. metric_name .. "' is invalid"
   end
   for _, label_name in ipairs(label_names or {}) do
     if label_name == "le" then
@@ -246,7 +245,7 @@ local function check_metric_and_label_names(metric_name, label_names)
     end
     if not label_name:match("^[a-zA-Z_][a-zA-Z0-9_]*$") then
       return "Metric '" .. metric_name .. "' label name '" .. label_name ..
-             "' contains invalid characters"
+             "' is invalid"
     end
   end
 end
@@ -505,25 +504,32 @@ function Prometheus:collect()
   table.sort(keys)
 
   local seen_metrics = {}
+  local output = {}
   for _, key in ipairs(keys) do
     local value, err = self.dict:get(key)
     if value then
       local short_name = short_metric_name(key)
       if not seen_metrics[short_name] then
         if self.help[short_name] then
-          ngx.say("# HELP " .. self.prefix .. short_name .. " " .. self.help[short_name])
+          table.insert(output, string.format("# HELP %s%s %s\n",
+            self.prefix, short_name, self.help[short_name]))
         end
         if self.type[short_name] then
-          ngx.say("# TYPE " .. self.prefix .. short_name .. " " .. self.type[short_name])
+          table.insert(output, string.format("# TYPE %s%s %s\n",
+            self.prefix, short_name, self.type[short_name]))
         end
         seen_metrics[short_name] = true
       end
       -- Replace "Inf" with "+Inf" in each metric's last bucket 'le' label.
-      ngx.say(self.prefix .. key:gsub('le="Inf"', 'le="+Inf"'), " ", value)
+      if key:find('le="Inf"', 1, true) then
+        key = key:gsub('le="Inf"', 'le="+Inf"')
+      end
+      table.insert(output, string.format("%s%s %s\n", self.prefix, key, value))
     else
       self:log_error("Error getting '", key, "': ", err)
     end
   end
+  ngx.print(output)
 end
 
 return Prometheus
